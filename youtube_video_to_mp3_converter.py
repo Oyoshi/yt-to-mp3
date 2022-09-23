@@ -1,6 +1,7 @@
 from pytube import YouTube
-from pytube.cli import on_progress
-from logger import Logger
+
+# from pytube.cli import on_progress
+from logger import on_progress, log
 import pytube.request
 import os
 
@@ -13,26 +14,23 @@ pytube.request.default_range_size = 32768
 class YouTubeVideoToMp3Converter:
     def __init__(self, playlists) -> None:
         self.playlists = playlists
-        self.logger = Logger()
 
     def execute(self) -> None:
         for playlist_name, video_ids in self.playlists.items():
-            self.logger.log(f"\nDownloading playlist {playlist_name}\n")
+            log(f"\nDownloading playlist {playlist_name}\n")
             for video_id in video_ids:
                 self.download_video(playlist_name, video_id)
 
     def download_video(self, playlist_name, video_id) -> None:
         url = self.build_video_url(video_id)
         yt = YouTube(url, on_progress_callback=on_progress)
-        self.logger.log(f"Converting {yt.title}")
-        self.logger.set_color()
+        log(f"Converting {yt.title}")
         video = yt.streams.filter(only_audio=True).first()
         out_file = video.download(output_path=f"./{playlist_name}/")
         base, _ = os.path.splitext(out_file)
         new_file = base + ".mp3"
         os.rename(out_file, new_file)
-        self.logger.reset_color()
-        self.logger.log(f"\nFinished converting: {yt.title}\n")
+        log(f"\nFinished converting: {yt.title}\n")
 
     def build_video_url(self, video_id) -> str:
         return f"https://youtu.be/{video_id}"

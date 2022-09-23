@@ -1,13 +1,23 @@
-class Logger:
-    def __init__(self) -> None:
-        self.green = "\033[38;2;00;255;65m"
-        self.default = "\033[39m"
+import sys
 
-    def log(self, *args):
-        print(*args)
 
-    def set_color(self):
-        print(self.green, end='')
+def log(*args):
+    print(*args)
 
-    def reset_color(self):
-        print(self.default, end='')
+
+def debug_log(*args):
+    print("DEBUG: ", *args)
+
+
+green = "\033[38;2;00;255;65m"
+default = "\033[39m"
+
+
+def on_progress(chunk, file_handle, bytes_remaining):
+    filesize = chunk.filesize
+    current = (filesize - bytes_remaining) / filesize
+    percent = ("{0:.1f}").format(current * 100)
+    progress = int(50 * current)
+    status = "#" * progress + "-" * (50 - progress)
+    sys.stdout.write(green + f'|{status}| {percent}%\r' + default)
+    sys.stdout.flush()
