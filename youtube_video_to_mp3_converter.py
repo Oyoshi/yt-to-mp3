@@ -20,7 +20,11 @@ class YouTubeVideoToMp3Converter:
                 self.convert_video(video)
         if self.config.playlists:
             for playlist in self.config.playlists:
-                playlist_url = playlist if playlist.startswith('http') else self.build_playlist_url(playlist)
+                playlist_url = (
+                    playlist
+                    if playlist.startswith("http")
+                    else self.build_playlist_url(playlist)
+                )
                 print(playlist_url)
                 playlist = Playlist(playlist_url)
                 self.convert_playlist(playlist.video_urls, playlist.title)
@@ -44,7 +48,7 @@ class YouTubeVideoToMp3Converter:
         base, _ = os.path.splitext(out_file)
         os.rename(out_file, f"{base}.mp3")
         log(f"\nFinished converting: {yt.title}\n")
-    
+
     def build_playlist_url(self, playlist_id) -> str:
         return f"https://youtu.be/playlist?list={playlist_id}"
 

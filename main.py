@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
-from youtube_playlists_downloader import YouTubePlaylistsDownloader
+from youtube_my_playlists_downloader import YouTubeMyPlaylistsDownloader
 from youtube_video_to_mp3_converter import YouTubeVideoToMp3Converter
 
 
 def main():
     args_parser = create_args_parser()
     config = args_parser.parse_args()
-    playlists_downloader = YouTubePlaylistsDownloader(config)
+    playlists_downloader = YouTubeMyPlaylistsDownloader(config)
     my_playlists = playlists_downloader.execute()
     converter = YouTubeVideoToMp3Converter(config, my_playlists)
     converter.execute()
