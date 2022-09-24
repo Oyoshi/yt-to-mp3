@@ -14,6 +14,8 @@ I'm not sure if it's 100% legal :trollface:.
 
 ## Demo
 
+![Videos and Playlists](demos/demo_videos_playlists.gif)
+
 ## Prerequisites
 
 1.  Optionally create [venv](https://docs.python.org/3/library/venv.html) 

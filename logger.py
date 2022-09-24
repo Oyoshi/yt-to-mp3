@@ -9,7 +9,7 @@ def debug_log(*args):
     print("DEBUG: ", *args)
 
 
-purple = "\033[38;2;97;1;221m"
+purple = "\033[38;2;97;01;221m"
 default = "\033[39m"
 
 
