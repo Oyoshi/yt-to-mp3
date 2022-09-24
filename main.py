@@ -7,10 +7,10 @@ from youtube_video_to_mp3_converter import YouTubeVideoToMp3Converter
 def main():
     args_parser = create_args_parser()
     config = args_parser.parse_args()
-    # playlists_downloader = YouTubePlaylistsDownloader()
-    # playlists = playlists_downloader.execute()
-    # converter = YouTubeVideoToMp3Converter(playlists)
-    # converter.execute()
+    playlists_downloader = YouTubePlaylistsDownloader(config)
+    my_playlists = playlists_downloader.execute()
+    converter = YouTubeVideoToMp3Converter(config, my_playlists)
+    converter.execute()
 
 
 def create_args_parser():
@@ -22,12 +22,11 @@ def create_args_parser():
         "-p", "--playlists", nargs="+", help="list of urls or playlist ids"
     )
     args_parser.add_argument(
-        "-a", "--all", action="store_true", help="convert all my playlists"
+        "-a", "--all", action="store_true", help="convert my all playlists"
     )
     args_parser.add_argument(
         "-d",
         "--dir",
-        action="store_true",
         help="destination directory for converted videos",
     )
     return args_parser

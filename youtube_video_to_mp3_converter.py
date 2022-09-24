@@ -1,6 +1,4 @@
-from pytube import YouTube
-
-# from pytube.cli import on_progress
+from pytube import YouTube, Playlist
 from logger import on_progress, log
 import pytube.request
 import os
@@ -12,24 +10,37 @@ pytube.request.default_range_size = 32768
 
 
 class YouTubeVideoToMp3Converter:
-    def __init__(self, playlists) -> None:
-        self.playlists = playlists
+    def __init__(self, config, my_playlists) -> None:
+        self.config = config
+        self.my_playlists = my_playlists
 
     def execute(self) -> None:
-        for playlist_name, video_ids in self.playlists.items():
-            log(f"\nDownloading playlist {playlist_name}\n")
-            for video_id in video_ids:
-                self.download_video(playlist_name, video_id)
+        if self.config.videos:
+            for video in self.config.videos:
+                self.convert_video(video)
+        if self.config.playlists:
+            for playlist_url in self.config.playlists:
+                playlist = Playlist(playlist_url)
+                self.convert_playlist(playlist.video_urls, playlist.title)
+        if self.my_playlists:
+            for playlist_name, video_ids in self.my_playlists.items():
+                self.convert_playlist(video_ids, playlist_name)
 
-    def download_video(self, playlist_name, video_id) -> None:
-        url = self.build_video_url(video_id)
+    def convert_playlist(self, videos, playlist_name) -> None:
+        log(f"\nDownloading playlist {playlist_name}\n")
+        for video in videos:
+            self.convert_video(video, playlist_name)
+
+    def convert_video(self, video, playlist_name=None) -> None:
+        url = video if video.startswith("http") else self.build_video_url(video)
         yt = YouTube(url, on_progress_callback=on_progress)
-        log(f"Converting {yt.title}")
+        log(f"\nConverting {yt.title}")
         video = yt.streams.filter(only_audio=True).first()
-        out_file = video.download(output_path=f"./{playlist_name}/")
+        output_path = self.config.dir if self.config.dir else "./"
+        output_path = f"{output_path}/{playlist_name}" if playlist_name else output_path
+        out_file = video.download(output_path=output_path)
         base, _ = os.path.splitext(out_file)
-        new_file = base + ".mp3"
-        os.rename(out_file, new_file)
+        os.rename(out_file, f"{base}.mp3")
         log(f"\nFinished converting: {yt.title}\n")
 
     def build_video_url(self, video_id) -> str:

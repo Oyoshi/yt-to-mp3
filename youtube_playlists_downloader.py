@@ -3,9 +3,25 @@ from googleapiclient.discovery import build
 
 
 class YouTubePlaylistsDownloader:
-    def __init__(self) -> None:
+    def __init__(self, config) -> None:
+        self.config = config
+
+    def execute(self):
+        if not self.config.all:
+            return None
         credentials = self.get_credentials()
-        self.youtube = build("youtube", "v3", credentials=credentials)
+        youtube = build("youtube", "v3", credentials=credentials)
+        result = {}
+        mine_playlists = self.get_my_playlists(youtube)
+        for playlist in mine_playlists:
+            playlist_name = playlist["snippet"]["title"]
+            playlist_id = playlist["id"]
+            videos = [
+                video["contentDetails"]["videoId"]
+                for video in self.get_all_videos(youtube, playlist_id)
+            ]
+            result[playlist_name] = videos
+        return result
 
     def get_credentials(self):
         flow = InstalledAppFlow.from_client_secrets_file(
@@ -15,26 +31,13 @@ class YouTubePlaylistsDownloader:
         flow.run_local_server(port=8080, prompt="consent")
         return flow.credentials
 
-    def execute(self):
-        result = {}
-        mine_playlists = self.get_mine_playlists()
-        for playlist in mine_playlists:
-            playlist_name = playlist["snippet"]["title"]
-            playlist_id = playlist["id"]
-            videos = [
-                video["contentDetails"]["videoId"]
-                for video in self.get_all_videos(playlist_id)
-            ]
-            result[playlist_name] = videos
-        return result
-
-    def get_mine_playlists(self):
-        request = self.youtube.playlists().list(part="snippet", mine=True)
+    def get_my_playlists(self, youtube):
+        request = youtube.playlists().list(part="snippet", mine=True)
         response = request.execute()
         return response["items"]
 
-    def get_all_videos(self, playlist_id):
-        request = self.youtube.playlistItems().list(
+    def get_all_videos(self, youtube, playlist_id):
+        request = youtube.playlistItems().list(
             part="contentDetails", playlistId=playlist_id
         )
         response = request.execute()
