@@ -14,7 +14,9 @@ def main():
 
 
 def create_args_parser():
-    args_parser = ArgumentParser(description="Convert YT video into mp3", allow_abbrev=False)
+    args_parser = ArgumentParser(
+        description="Convert YT video into mp3", allow_abbrev=False
+    )
     args_parser.add_argument(
         "-v", "--videos", nargs="+", help="list of urls or video ids"
     )
